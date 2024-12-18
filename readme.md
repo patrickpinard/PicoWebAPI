@@ -215,7 +215,6 @@ Cette application Flask sert d'interface web pour un système de contrôle de re
 
 
 ![](/images/relais.png)
-![](/images/system.png)
 ![](/images/events.png)
 
 ### Caractéristiques principales
