@@ -213,6 +213,13 @@ Au démarrage, le système :
 
 Cette application Flask sert d'interface web pour un système de contrôle de relais Pico W. Elle fournit une interface utilisateur web complète et gère la communication avec le Pico W via une API REST.
 
+
+![](/images/relais.png)
+
+![](/images/system.png)
+
+![](/images/events.png)
+
 ### Caractéristiques principales
 - Interface web responsive
 - Support PWA (Progressive Web App)
