@@ -1,0 +1,54 @@
+{
+    "name": "PICO Web App",
+    "short_name": "BOX",
+    "start_url": "",
+    "display": "standalone",
+    "scope" : "/",
+    "background_color": "#000000",
+    "theme_color": "#000000",
+    "orientation": "portrait",
+    "icons": [
+        {
+            "src": "static/img/apple-touch-icon-72x72.png",
+            "type": "image/png",
+            "sizes": "72x72",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "static/img/favicon-96x96.png",
+            "type": "image/png",
+            "sizes": "96x96",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "static/img/apple-touch-icon-120x120.png",
+            "type": "image/png",
+            "sizes": "120x120",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "static/img/mstile-144x144.png",
+            "type": "image/png",
+            "sizes": "144x144",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "static/img/mstile-150x150.png",
+            "type": "image/png",
+            "sizes": "150x150",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "static/img/apple-touch-icon152x152.png",
+            "type": "image/png",
+            "sizes": "152x152",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "static/img/mstile-310x310.png",
+            "type": "image/png",
+            "sizes": "310x310",
+            "purpose": "any maskable"
+        }
+    ]
+}

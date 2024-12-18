@@ -1,0 +1,334 @@
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover"
+/>
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta
+  name="apple-mobile-web-app-status-bar-style"
+  content="black-translucent"
+/>
+<meta name="theme-color" content="#000000" />
+<title>Pico Web App</title>
+
+<link
+  rel="icon"
+  type="image/png"
+  href="static/img/favicon-32x32.png"
+  sizes="32x32"
+/>
+<link
+  rel="apple-touch-icon"
+  sizes="196x196"
+  href="static/img/favicon-196x196.png"
+/>
+<link rel="stylesheet" href="static/css/style.css" />
+<link rel="manifest" href="__manifest.json" />
+
+<!-- ========= JS Files =========  -->
+
+<!-- Bootstrap -->
+<script
+  src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+  integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+  crossorigin="anonymous"
+></script>
+
+<!-- Ionicons -->
+<script
+  type="module"
+  src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"
+></script>
+
+<!-- Base Js File -->
+<script src="static/js/base.js"></script>
+
+<!-- Apex Charts -->
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+<!-- jquery -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+
+<style>
+.alert-box {
+    background-color: #ffebee;  /* Rouge clair */
+    border: 1px solid #ef5350;  /* Rouge plus foncé */
+    color: #c62828;            /* Rouge pour le texte */
+    padding: 10px 15px;
+    margin: 10px 0;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+}
+
+/* Optionnel : Animation pour faire apparaître la box en douceur */
+.alert-box {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+</style>
+
+<!-- App Header -->
+<div class="appHeader bg-primary text-light">
+  <div class="left">
+    <img
+    src="static/img/favicon-32x32.png"
+    style="color: white"
+    type="image/png"
+    sizes="32x32"
+    />
+ 
+  </div>
+
+  <div class="pageTitle">
+    <strong> PICO Board Web App </strong>
+    {% if not connected %}
+    <div class="alert-box">
+        <ion-icon name="warning-outline" style="margin-right: 10px;"></ion-icon>
+        <span>La connexion est perdue</span>
+    </div>
+    {% endif %}
+    <!-- {% if connected == true %}
+    <ion-icon id=connexionstate name="flash-outline"></ion-icon>
+    {% else %}
+    <ion-icon name="flash-off-outline"></ion-icon>
+    {% endif %} -->
+  </div>
+
+  <div class="right">
+    <a
+      class="headerButton"
+      href="#infobox"
+      class="item"
+      data-bs-toggle="modal"
+      data-bs-target="#infobox"
+    >
+      <ion-icon
+        style="color: rgb(252, 249, 249)"
+        name="information-circle"
+      ></ion-icon>
+    </a>
+  </div>
+</div>
+
+{% block body %}
+
+{% if connected == false %}
+<div class="alert-box">
+   <p>Attention : Connexion perdue</p>
+</div>
+{% endif %}
+
+{% endblock %}
+
+<!-- App Bottom Menu -->
+<div class="appBottomMenu">
+  <a href="{{ url_for('relais') }}" class="item">
+    <div class="col">
+      <ion-icon name="toggle-outline"></ion-icon>
+      <strong>Relais</strong>
+    </div>
+  </a>
+
+  <a href="{{ url_for('system') }}"  class="item">
+    <div class="col">
+      <ion-icon name="reader-outline"></ion-icon>
+      <strong>Système</strong>
+    </div>
+  </a>
+
+  <!-- <a href="{{ url_for('parameters') }}"  class="item">
+    <div class="col">
+      <ion-icon name="construct-outline"></ion-icon>
+      <strong>Paramètres</strong>
+    </div>
+  </a> -->
+
+  <a href="{{ url_for('events') }}"  class="item">
+    <div class="col">
+      <ion-icon name="list-outline"></ion-icon>
+      <strong>Evénements</strong>
+    </div>
+  </a>
+
+  
+</div>
+<!-- * App Bottom Menu -->
+
+<!-- Modal Info Box -->
+
+<div
+  class="modal fade dialogbox"
+  id="infobox"
+  data-bs-backdrop="static"
+  tabindex="-1"
+  role="dialog"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">PICO Board Web App</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <p>
+          en construction
+        </p>
+        <br />
+        <img
+          src="static/img/favicon-96x96.png"
+          class="rounded float-center img-responsive"
+          alt=" Responsive image"
+        />
+        <br />
+        <br />
+        Patrick Pinard - 2024
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- * Modal (reboot) -->
+
+
+<!-- Modal (confirm reboot) -->
+
+<div
+  class="modal fade dialogbox"
+  id="confirm_reboot"
+  data-bs-backdrop="static"
+  tabindex="-1"
+  role="dialog"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Redémarrer (reboot)</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <p>Attention ! Êtes-vous sûr ?</p>
+      </div>
+      <div class="modal-footer">
+        <form method="POST" role="form" action="/reboot" class="center-block">
+          <button
+            type="submit"
+            class="btn btn-danger"
+            name="shutdown"
+            value="refresh"
+          >
+            Confirmer
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- * Modal (reboot) -->
+
+<!-- Modal (confirm shutdown) --->
+
+<div
+  class="modal fade dialogbox"
+  id="confirm_shutdown"
+  data-bs-backdrop="static"
+  tabindex="-1"
+  role="dialog"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Eteindre (shutdown)</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <p>Attention ! Êtes-vous sûr ?</p>
+      </div>
+      <div class="modal-footer">
+        <form method="POST" role="form" action="/shutdown" class="center-block">
+          <button
+            type="submit"
+            class="btn btn-danger"
+            name="shutdown"
+            value="refresh"
+          >
+            Confirmer
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- * Modal (shutdown) test -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // Fonction centralisée pour commander les relais
+    async function commanderRelais(relayId, state) {
+        //const apiUrl = `http://pico.ppdlab.ch/relay/${relayId}/${state}`;
+        const apiUrl = `http://192.168.1.109/relay/${relayId}/${state}`;
+        
+        try {
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({body:null})
+
+            });
+            const result = await response.json();
+            console.log(result)
+            // if (!response.ok) {
+            //     console.log(result.status);
+            //     throw new Error(`Erreur HTTP ! statut : ${response.status}`);
+            //   }
+            // return true;
+        } catch (error) {
+            return false;
+          }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const switches = document.querySelectorAll('.relay-switch');
+
+        switches.forEach(switchElement => {
+            switchElement.addEventListener('change', async (event) => {
+                const relayId = event.target.dataset.relayId;
+                const state = event.target.checked ? 1 : 0;
+
+                const success = await commanderRelais(relayId, state);
+
+                //if (!success) {
+                    //Rétablir l'état précédent du switch en cas d'erreur
+                  //event.target.checked = !event.target.checked;
+                  //alert(`Impossible de commander le relais ${relayId}. Vérifiez la connexion.`);
+                //}
+            });
+        });
+    });
+</script>
