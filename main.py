@@ -1,3 +1,6 @@
+# V1 - main.py pour Raspberry Pico W
+# Patrick Pinard - 2024
+
 import json
 import mm_wlan
 from secrets import ssid, pwd, ssl_key, ssl_cert, location, contact
