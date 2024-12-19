@@ -1,5 +1,12 @@
 # Documentation du système de contrôle de relais Pico W
 
+https://www.waveshare.com/pico-relay-b.htm
+
+![](/images/pico-relay-b-1.png)
+
+![](/images/pico-relay-b-2.png)
+
+
 ## Table des matières
 - [Vue d'ensemble](#vue-densemble)
 - [Configuration](#configuration)
