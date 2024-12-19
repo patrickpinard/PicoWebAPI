@@ -1,5 +1,6 @@
-# Version 1
+# Version 1 - Flask web PWA to maange Raspberry Pico Relay Board with API's
 # Patrick Pinard - 2024
+
 
 from flask import Flask, render_template, jsonify
 import requests

@@ -1,14 +1,14 @@
 # V1 - main.py pour Raspberry Pico W
 # Patrick Pinard - 2024
 
+
 import json
 import mm_wlan
-from secrets import ssid, pwd, ssl_key, ssl_cert, location, contact
+from secrets import ssid, pwd, location, contact
 from time import localtime, sleep
 from machine import Pin, ADC, reset
 import neopixel
 import gc
-import uos
 import time
 
 class Config:
@@ -32,14 +32,16 @@ class Config:
     BUZZER_PIN = 6
     ONBOARD_LED_PIN = "LED"
     STATE_FILE = "relay_states.json"
-    MAX_EVENTS = 200
+    MAX_EVENTS = 50
+    EVENTS_FILE = "events.json"
 
-class RelaySystem:
+class PicoBoardRelay(object):
     
     def __init__(self):
         
-        # Create log 
-        self.events=[]
+        # Load log
+        #self.events = []
+        self.events=self.load_events()
         
         # Initialize relays with state tracking
         self.relays = {}
@@ -52,8 +54,10 @@ class RelaySystem:
         
         # Dynamically create relay pins
         self._setup_relays()
-        
-        self._log_event("INFO: Relay System Initialized")
+        self.led_rgb[0] = Config.COLORS["YELLOW"] 
+        self.led_rgb.write()
+        time.sleep(0.5)
+        self.log_event("INFO: Relay System Initialized")
 
     def _setup_relays(self):
         """Set up relay pins based on configuration"""
@@ -70,12 +74,12 @@ class RelaySystem:
         try:
             with open(Config.STATE_FILE, 'r') as f:
                 states = json.load(f)
-                self._log_event("INFO: Relay states loaded successfully")
+                self.log_event("INFO: Relay states loaded successfully")
                 return states
         except (OSError, ValueError):
             # Return default states if file doesn't exist or is invalid
             default_states = {str(k): False for k in Config.RELAY_PINS.keys()}
-            self._log_event("WARNING: Relay states reset to default")
+            self.log_event("WARNING: Relay states reset to default")
             return default_states
 
     def save_relay_states(self):
@@ -83,9 +87,28 @@ class RelaySystem:
         try:
             with open(Config.STATE_FILE, 'w') as f:
                 json.dump(self.relay_states, f)
-            #self._log_event("INFO: Relay states saved")
+            #self.log_event("INFO: Relay states saved")
         except OSError:
-            self._log_event("ERROR: Failed to save relay states")
+            self.log_event("ERROR: Failed to save relay states")
+
+    def load_events(self):
+        """Load events log from persistent storage"""
+        try:
+            with open(Config.EVENTS_FILE, 'r') as f:
+                return json.load(f)
+        except (OSError, ValueError):
+            # Return empty events if events file doesn't exist or is invalid
+            return []
+        
+    def save_events(self):
+        """Save current events to persistent storage"""
+        try:
+            with open(Config.EVENTS_FILE, 'w') as f:
+                json.dump(self.events, f)
+            #self.log_event("INFO: Events log saved to persistent storage")
+        except OSError:
+            self.log_event("ERROR: Failed to save relay states")
+
 
     def set_relay(self, relay_id, state):
         """
@@ -95,7 +118,11 @@ class RelaySystem:
         :return: Boolean indicating success
         """
         if relay_id not in self.relays:
-            self._log_event(f"ERROR: Invalid relay ID {relay_id}")
+            self.log_event(f"ERROR: Invalid relay ID : {relay_id}. Must be between 1..8")
+            return False
+        
+        if state not in ["0","1"]:
+            self.log_event(f"ERROR: Invalid state : {state} for relay ID : {relay_id}. Must be 1 or 0")
             return False
         
         # Set physical relay state
@@ -105,7 +132,7 @@ class RelaySystem:
         self.relay_states[relay_id] = state
         
         # Log the state change
-        self._log_event(f"INFO: Relay {relay_id} set to {state}")
+        self.log_event(f"INFO: Relay {relay_id} set to {state}")
         
         # Save states after change
         self.save_relay_states()
@@ -120,9 +147,9 @@ class RelaySystem:
         for relay_id in self.relays:
             self.set_relay(relay_id, state)
         
-        self._log_event(f"INFO: All relays set to {state}")
+        self.log_event(f"INFO: All relays set to {state}")
 
-    def _log_event(self, message):
+    def log_event(self, message):
         """
         Log system events with timestamp
         Maintains a rolling buffer of events
@@ -139,6 +166,7 @@ class RelaySystem:
             self.events.pop(0)
 
         self.events.insert(0, event)
+        self.save_events()
         print(message)
 
     def get_system_info(self):
@@ -174,7 +202,7 @@ class RelaySystem:
             'contact': contact
         }
 
-def create_app(relay_system):
+def create_app(PicoBoardRelay):
     """Factory function to create Microdot application"""
     from microdot import Microdot
     app = Microdot()
@@ -182,7 +210,7 @@ def create_app(relay_system):
     @app.route('/relays')
     def get_relay_states(request):
         """Get the current state of all relays"""
-        return json.dumps(relay_system.relay_states), {"Content-Type": "application/json"}
+        return json.dumps(PicoBoardRelay.relay_states), {"Content-Type": "application/json"}
 
     @app.route('/relay/<id>/<state>', methods=['GET', 'POST'])
     def control_relay(request, id, state):
@@ -190,12 +218,12 @@ def create_app(relay_system):
         try:
             # Convert state to boolean
             relay_state = state == "1"
-            success = relay_system.set_relay(id, relay_state)
+            success = PicoBoardRelay.set_relay(id, relay_state)
             
             if success:
                 return json.dumps({f'Relay{id}': relay_state}), {"Content-Type": "application/json"}
             else:
-                return json.dumps({"error": "Invalid relay"}), {"status": 400, "Content-Type": "application/json"}
+                return json.dumps({"error": "Invalid command"}), {"status": 400, "Content-Type": "application/json"}
         except Exception as e:
             return json.dumps({"error": str(e)}), {"status": 500, "Content-Type": "application/json"}
 
@@ -204,7 +232,7 @@ def create_app(relay_system):
         """Control all relays simultaneously"""
         try:
             relay_state = state == "1"
-            relay_system.set_all_relays(relay_state)
+            PicoBoardRelay.set_all_relays(relay_state)
             return json.dumps(f"All relays set to {state}"), {"Content-Type": "application/json"}
         except Exception as e:
             return json.dumps({"error": str(e)}), {"status": 500, "Content-Type": "application/json"}
@@ -212,49 +240,59 @@ def create_app(relay_system):
     @app.route('/system')
     def system_info(request):
         """Get system information"""
-        return json.dumps(relay_system.get_system_info()), {"Content-Type": "application/json"}
+        return json.dumps(PicoBoardRelay.get_system_info()), {"Content-Type": "application/json"}
 
     @app.route('/reboot', methods=['GET', 'POST'])
     def system_reboot(request):
         """Perform system reboot"""
-        relay_system._log_event("INFO: Pico System reboot initiated")
+        PicoBoardRelay.log_event("INFO: Pico System reboot initiated")
         reset()
 
     
     @app.route("/events", methods=['GET', 'POST'])
     def events(request):
 
-        return  json.dumps(relay_system.events), {"Content-Type": "application/json"}
+        return  json.dumps(PicoBoardRelay.events), {"Content-Type": "application/json"}
 
     return app
 
 def main():
     """Main application entry point"""
+  
+    # Create Pico relay board system
+    PicoBoard = PicoBoardRelay()
+
     # Initialize WiFi
     mm_wlan.connect_to_network(ssid, pwd)
     if not mm_wlan.is_connected():
         print("Failed to connect to WiFi")
+        PicoBoard.log_event(f"WARNING: Failed to connect to WiFi")
         return
-   
-    # Create relay system
-    relay_system = RelaySystem()
+    PicoBoard.log_event(f"INFO: Wifi connected")
 
     # Create and run application
-    app = create_app(relay_system)
-    
+    app = create_app(PicoBoard)
+    PicoBoard.log_event(f"INFO: Application started. Welcome !")
     try:
-        # Run with SSL if certificates are available
-        if ssl_key and ssl_cert:
-            app.run(port=443, ssl_cert=ssl_cert, ssl_key=ssl_key)
-        else:
-            app.run(port=80)
+        PicoBoard.led_rgb[0] = Config.COLORS["GREEN"] 
+        PicoBoard.led_rgb.write()
+        app.run(host="0.0.0.0", port=80, debug=True)
     except Exception as e:
-        print(f"Application startup failed: {e}")
-        relay_system.buzzer.on()
-        time.sleep(1)
-        relay_system.buzzer.off()
-        app.run(port=80)
+        
+        PicoBoard.log_event(f"WARNING: Application startup failed: {e}")
+        PicoBoard.led_rgb[0] = Config.COLORS["RED"] 
+        PicoBoard.led_rgb.write()
+        time.sleep(3)
+    finally :
+        PicoBoard.led_rgb[0] = Config.COLORS["OFF"] 
+        PicoBoard.led_rgb.write()
+        PicoBoard.log_event(f"INFO: Application stopped. Bye !")
+        
 
 if __name__ == "__main__":
     main()
+    
+
+
+
 
