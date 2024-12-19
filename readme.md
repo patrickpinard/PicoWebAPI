@@ -11,6 +11,7 @@ Il offre une interface REST API et intègre des fonctionnalités de surveillance
 Le système est composé de deux parties principales :
 - Un serveur Flask (`app.py`) qui sert l'interface web et fait le pont avec le Pico
 - Un client Pico (`main.py`) qui gère les relais et expose une API REST
+  
 Référence du module: https://www.waveshare.com/pico-relay-b.htm
 
 ![](/images/pico-relay-b-1.jpg)
