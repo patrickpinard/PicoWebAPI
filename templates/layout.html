@@ -46,8 +46,8 @@
 <!-- Base Js File -->
 <script src="static/js/base.js"></script>
 
-<!-- Apex Charts -->
-<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<!-- Apex Charts 
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>-->
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
@@ -291,7 +291,7 @@
 <script>
     // Fonction centralisée pour commander les relais
     async function commanderRelais(relayId, state) {
-        //const apiUrl = `http://pico.ppdlab.ch/relay/${relayId}/${state}`;
+       
         const apiUrl = `http://192.168.1.109/relay/${relayId}/${state}`;
         
         try {
