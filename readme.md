@@ -1,6 +1,6 @@
-# Documentation du système de contrôle de relais Pico W
+# Web PWA via API's de contrôle du module 8 relais WaveShare / Pico W
 
-https://www.waveshare.com/pico-relay-b.htm
+référence : https://www.waveshare.com/pico-relay-b.htm
 
 ![](/images/pico-relay-b-1.jpg)
 
