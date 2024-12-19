@@ -1,25 +1,21 @@
-# Web PWA via API's de contrôle du module 8 relais WaveShare / Pico W
+# Web PWA APP de contrôle du module 8 relais WaveShare/Pico-W via via API's 
 
-référence : https://www.waveshare.com/pico-relay-b.htm
+## Vue d'ensemble de la solution
+
+Ce système permet de contrôler jusqu'à 8 relais du module waveshare via un Raspberry Pi Pico W. 
+
+Il offre une interface REST API et intègre des fonctionnalités de surveillance système, de journalisation des événements et de persistance des états.
+
+## Architecture du Système
+
+Le système est composé de deux parties principales :
+- Un serveur Flask (`app.py`) qui sert l'interface web et fait le pont avec le Pico
+- Un client Pico (`main.py`) qui gère les relais et expose une API REST
+Référence du module: https://www.waveshare.com/pico-relay-b.htm
 
 ![](/images/pico-relay-b-1.jpg)
 
 ![](/images/pico-relay-b-2.jpg)
-
-
-## Table des matières
-- [Vue d'ensemble](#vue-densemble)
-- [Configuration](#configuration)
-- [Composants matériels](#composants-matériels)
-- [API REST](#api-rest)
-- [Classes principales](#classes-principales)
-- [Fonctionnalités](#fonctionnalités)
-- [Gestion des états](#gestion-des-états)
-- [Surveillance système](#surveillance-système)
-
-## Vue d'ensemble
-
-Ce système permet de contrôler jusqu'à 8 relais via un Raspberry Pi Pico W. Il offre une interface REST API et intègre des fonctionnalités de surveillance système, de journalisation des événements et de persistance des états.
 
 ### Caractéristiques principales
 - Contrôle de 8 relais indépendants
@@ -225,182 +221,183 @@ Cette application Flask sert d'interface web pour un système de contrôle de re
 ![](/images/system2.png)
 ![](/images/events.png)
 
-### Caractéristiques principales
+### Caractéristiques Principales
+
+- Contrôle de 8 relais individuels
 - Interface web responsive
-- Support PWA (Progressive Web App)
-- Gestion des états de connexion
-- Visualisation des événements système
-- Interface de contrôle des relais
-- Monitoring système
+- Monitoring système en temps réel
+- Journalisation des événements
+- Persistance des états des relais
+- Support SSL/TLS optionnel
+- Mode PWA (Progressive Web App)
 
-## Configuration
+## Serveur Web Flask (app.py)
 
-### Configuration de base
+### Configuration
+
+Le serveur Flask est configuré pour :
+- Écouter sur toutes les interfaces (`0.0.0.0`)
+- Port 80 par défaut
+- CORS activé pour `http://localhost`
+- Communication avec le Pico sur `http://192.168.1.109`
+
+### Points d'Accès (Routes)
+
+#### Routes Principales
+
+| Route | Méthode | Description |
+|-------|---------|-------------|
+| `/` | GET, POST | Page d'accueil avec état des relais |
+| `/relais` | GET, POST | Interface de contrôle des relais |
+| `/system` | GET, POST | Informations système |
+| `/parameters` | GET, POST | Page de paramètres |
+| `/events` | GET, POST | Journal des événements |
+
+#### Routes PWA
+
+| Route | Méthode | Description |
+|-------|---------|-------------|
+| `/__service-worker.js` | GET | Service Worker pour PWA |
+| `/__manifest.json` | GET | Manifeste PWA |
+
+#### Routes API
+
+| Route | Méthode | Description |
+|-------|---------|-------------|
+| `/get_relay_state` | GET, POST | Obtenir l'état des relais |
+| `/reboot` | GET, POST | Redémarrer le Pico |
+
+### Gestion des Erreurs
+
+Le serveur implémente une gestion robuste des erreurs avec :
+- Timeout de 3 secondes pour les requêtes
+- États par défaut en cas de déconnexion
+- Gestion des exceptions de connexion
+
+## Client Pico (main.py)
+
+### Classe Config
+
+Configuration centralisée du système :
+
 ```python
-URL_PICO = "http://192.168.1.109"
-app.secret_key = os.urandom(12)
-```
-
-### CORS
-```python
-CORS(app, resources={r"/*": {"origins": "http://localhost"}})
-```
-
-### États par défaut
-```python
-default_relays = [{"5": False, "4": False, "7": False, "6": False,
-                   "1": False, "8": False, "3": False, "2": False}]
-
-default_system = {
-    'ip_address': "unknown",
-    'ssid': "unknown",
-    'free_memory': "unknown",
-    'temperature': "unknown",
-    'voltage': "unknown",
-    'time': "unknown",
-    'date': "unknown",
-    'location': "unknown",
-    'contact': "unknown"
+RELAY_PINS = {
+    "1": 21, "2": 20, "3": 19, "4": 18,
+    "5": 17, "6": 16, "7": 15, "8": 14
 }
 ```
 
-## Routes et Endpoints
+Autres configurations :
+- PIN LED RGB : 13
+- PIN Buzzer : 6
+- Fichier d'états : "relay_states.json"
+- Limite événements : 50
 
-### Pages principales
+### Classe RelaySystem
 
-#### Page d'accueil
-```http
-GET /
-```
-Affiche la page principale avec l'état des relais
+#### Fonctionnalités Principales
 
-#### Page des relais
-```http
-GET /relais
-```
-Affiche l'interface de contrôle des relais
+1. **Gestion des Relais**
+   - Initialisation des pins
+   - Contrôle individuel
+   - Contrôle groupé
+   - Persistance des états
 
-#### Page système
-```http
-GET /system
-```
-Affiche les informations système
+2. **Monitoring Système**
+   - Température CPU
+   - Tension système
+   - Utilisation mémoire
+   - État réseau
+   - Horodatage
 
-#### Page des événements
-```http
-GET /events
-```
-Affiche le journal des événements
+3. **Journalisation**
+   - Buffer circulaire (50 événements)
+   - Horodatage des événements
+   - Catégorisation (INFO, WARNING, ERROR)
 
-#### Page des paramètres
-```http
-GET /parameters
-```
-Affiche la page de configuration
+#### Points d'Accès API
 
-### API Endpoints
+| Endpoint | Méthode | Description |
+|----------|---------|-------------|
+| `/relays` | GET | État de tous les relais |
+| `/relay/<id>/<state>` | GET, POST | Contrôle d'un relais |
+| `/allrelays/<state>` | GET, POST | Contrôle de tous les relais |
+| `/system` | GET | Informations système |
+| `/reboot` | GET, POST | Redémarrage système |
+| `/events` | GET, POST | Journal des événements |
 
-#### État des relais
-```http
-GET /get_relay_state
-```
-Retourne l'état actuel des relais en JSON
+### Sécurité
 
-#### Redémarrage
-```http
-GET /reboot
-```
-Déclenche un redémarrage du Pico W
-
-## Progressive Web App
-
-### Fichiers PWA
-- `/__service-worker.js` : Service worker pour le fonctionnement hors ligne
-- `/__manifest.json` : Manifeste de l'application
-
-### Routes PWA
-```python
-@app.route("/__service-worker.js")
-@app.route("/__manifest.json")
-```
-
-## Gestion des erreurs
-
-### Vérification de connexion
-```python
-def is_connected():
-    try:
-        response = requests.get(url, timeout=3)
-        return True
-    except:
-        return False
-```
-
-### Gestion des timeouts
-- Timeout de 3 secondes pour toutes les requêtes
-- Retour aux valeurs par défaut en cas d'erreur
-- Affichage des états de déconnexion dans l'interface
+Le système supporte :
+- Connexion WiFi sécurisée
+- SSL/TLS optionnel (port 443)
+- Fallback sur port 80 si SSL non disponible
 
 ## Installation
 
 ### Prérequis
-```bash
-pip install flask flask-cors requests
-```
 
-### Structure des fichiers
-```
-/
-├── app.py
-├── static/
-│   ├── __service-worker.js
-│   └── __manifest.json
-└── templates/
-    ├── relais.html
-    ├── system.html
-    ├── events.html
-    └── parameters.html
-```
+1. Raspberry Pi Pico W
+2. Serveur Python avec Flask
+3. Module de 8 relais
+4. Connexion réseau
 
-## Développement
+### Configuration Requise
 
-### Lancement du serveur
-```bash
-python app.py
-```
-
-### Configuration de développement
+Fichier `secrets.py` contenant :
 ```python
-if __name__ == '__main__':
-   app.run(host="0.0.0.0", port=80, debug=False)
+ssid = "votre_ssid"
+pwd = "votre_mot_de_passe"
+ssl_key = "chemin_vers_clé_ssl"  # Optionnel
+ssl_cert = "chemin_vers_cert_ssl"  # Optionnel
+location = "emplacement_dispositif"
+contact = "contact_administrateur"
 ```
 
-### Bonnes pratiques
-1. Tous les appels API ont un timeout de 3 secondes
-2. Les états par défaut sont utilisés en cas d'erreur
-3. L'état de connexion est vérifié pour chaque template
-4. Les erreurs sont gérées silencieusement pour l'utilisateur
+## Utilisation
 
-## Notes de sécurité
-- La clé secrète est générée aléatoirement au démarrage
-- CORS est configuré pour localhost uniquement
-- Les timeouts évitent les blocages
+### Démarrage du Serveur
 
-## Dépannage
+```bash
+sudo python3 app.py
+```
 
-### Problèmes courants
+### Accès à l'Interface
 
-1. **Erreur de connexion au Pico**
-   - Vérifier l'URL dans `URL_PICO`
-   - Vérifier que le Pico est en ligne
-   - Vérifier le réseau local
+1. Naviguer vers `http://<adresse_ip_serveur>`
+2. L'interface affiche :
+   - État des relais
+   - Informations système
+   - Journal des événements
+   - Options de configuration
 
-2. **Page blanche**
-   - Vérifier les logs Flask
-   - Vérifier les templates
-   - Vérifier la connexion au Pico
+## Surveillance et Maintenance
 
-3. **États incorrects**
-   - Rafraîchir la page
-   - Vérifier la connexion
-   - Redémarrer le Pico
+### Indicateurs LED
+
+- LED RGB pour l'état système
+- LED embarquée pour diagnostic
+
+### Journalisation
+
+Le système maintient un journal des 50 derniers événements avec :
+- Horodatage
+- Type d'événement
+- Message détaillé
+
+### Diagnostic
+
+1. Vérification de connexion : `http://<adresse_ip_pico>/system`
+2. État des relais : `http://<adresse_ip_pico>/relays`
+3. Journal système : `http://<adresse_ip_pico>/events`
+
+## Développement Futur
+
+Axes d'amélioration potentiels :
+1. Authentification utilisateur
+2. Planification des tâches
+3. Intégration MQTT
+4. Interface API étendue
+5. Support de configurations avancées
+
+
