@@ -3,7 +3,7 @@
 //-----------------------------------------------------------------------
 // Template Settings
 //-----------------------------------------------------------------------
-const MyGreenGarden = {
+const PicoWebAPP = {
     //-------------------------------------------------------------------
     // PWA Settings
     PWA: {
@@ -37,7 +37,7 @@ var appSidebar = document.getElementById("sidebarPanel")
 //-----------------------------------------------------------------------
 // Service Workers
 //-----------------------------------------------------------------------
-if (MyGreenGarden.PWA.enable) {
+if (PicoWebAPP.PWA.enable) {
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('__service-worker.js')
             .then(reg => console.log('service worker registered'))
@@ -49,7 +49,7 @@ if (MyGreenGarden.PWA.enable) {
 
 //-----------------------------------------------------------------------
 // RTL (Right to Left)
-if (MyGreenGarden.RTL.enable) {
+if (PicoWebAPP.RTL.enable) {
     var pageHTML = document.querySelector("html")
     pageHTML.dir = "rtl"
     document.querySelector("body").classList.add("rtl-mode")

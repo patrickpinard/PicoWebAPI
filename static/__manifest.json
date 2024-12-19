@@ -1,6 +1,6 @@
 {
-    "name": "PICO Web App",
-    "short_name": "BOX",
+    "name": "my PICO Web App",
+    "short_name": "PicoWebAPP",
     "start_url": "",
     "display": "standalone",
     "scope" : "/",
