@@ -2,9 +2,9 @@
 
 https://www.waveshare.com/pico-relay-b.htm
 
-![](/images/pico-relay-b-1.png)
+![](/images/pico-relay-b-1.jpg)
 
-![](/images/pico-relay-b-2.png)
+![](/images/pico-relay-b-2.jpg)
 
 
 ## Table des matières
