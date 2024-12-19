@@ -1,3 +1,6 @@
+# Version 1
+# Patrick Pinard - 2024
+
 from flask import Flask, render_template, jsonify
 import requests
 import os, time
