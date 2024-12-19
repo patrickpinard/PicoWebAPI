@@ -7,7 +7,7 @@ import requests
 import os, time
 from flask_cors import CORS
 import json
-#from myLOGLib import LogEvent, events
+
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "http://localhost"}})
