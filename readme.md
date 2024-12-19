@@ -202,7 +202,7 @@ Au démarrage, le système :
    - Surveillance de l'utilisation mémoire via `/system`
    - Nettoyage automatique du journal des événements
 
-# Documentation de l'interface Web Flask pour le système de relais
+# Documentation de l'interface Web (PWA) Flask 
 
 ## Table des matières
 - [Vue d'ensemble](#vue-densemble)
@@ -221,18 +221,6 @@ Cette application Flask sert d'interface web pour un système de contrôle de re
 ![](/images/relais.png)
 ![](/images/system2.png)
 ![](/images/events.png)
-
-### Caractéristiques Principales
-
-- Contrôle de 8 relais individuels
-- Interface web responsive
-- Monitoring système en temps réel
-- Journalisation des événements
-- Persistance des états des relais
-- Support SSL/TLS optionnel
-- Mode PWA (Progressive Web App)
-
-## Serveur Web Flask (app.py)
 
 ### Configuration
 
