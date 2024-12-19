@@ -119,7 +119,7 @@ Gère la configuration centralisée :
 - Définitions des couleurs
 - Configuration système
 
-### Class RelaySystem
+### Class PicoBoardRelay
 Gère l'ensemble du système :
 - Initialisation des relais
 - Gestion des états
